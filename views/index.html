@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loja Virtual</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <h1>Nossos Produtos</h1>
+        <a href="/checkout" class="cart-link">
+            Carrinho (<span id="cart-counter">0</span>)
+        </a>
+    </header>
+
+    <div class="product-list">
+        <div class="product">
+            <h3>Produto 1</h3>
+            <p>R$ 50,00</p>
+            <button class="add-to-cart" data-product='{"id":1,"name":"Produto 1","price":50}'>
+                Adicionar ao Carrinho
+            </button>
+        </div>
+
+        <div class="product">
+            <h3>Produto 2</h3>
+            <p>R$ 75,00</p>
+            <button class="add-to-cart" data-product='{"id":2,"name":"Produto 2","price":75}'>
+                Adicionar ao Carrinho
+            </button>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>

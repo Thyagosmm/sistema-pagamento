@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="checkout-container">
+      <h2>Seu Pedido</h2>
+      <div id="order-summary"></div>
+      <div id="paypal-button-container"></div>
+    </div>
+
+    <script src="/app.js"></script>
+    <script
+      src="https://www.paypal.com/sdk/js?client-id=AYTzSpClzM2gdkiyNr2KUyWOSjuP5O4wxAlS3u3ksJ_nhW_R2LRlSvLvzDq0VcoHSUrQs3BaaHx9TNPa&currency=BRL"
+      data-nonce="RANDOM_NONCE"
+      async
+      defer
+    ></script>
+
+    <script>
+      // Esperar o SDK do PayPal carregar
+      function loadPayPalButton() {
+        const checkoutCart = JSON.parse(sessionStorage.getItem("cart")) || [];
+        const total = checkoutCart.reduce((sum, item) => sum + item.price, 0);
+
+        document.getElementById("order-summary").innerHTML = `
+        <h3>Itens do Carrinho</h3>
+        ${checkoutCart
+          .map(
+            (item) => `
+            <div class="cart-item">
+                <p>${item.name} - R$ ${item.price.toFixed(2)}</p>
+            </div>
+        `
+          )
+          .join("")}
+        <hr>
+        <p class="total">Total: R$ ${total.toFixed(2)}</p>
+    `;
+
+        // Verificar se o PayPal está carregado
+        if (typeof paypal !== "undefined") {
+          paypal
+            .Buttons({
+              createOrder: function () {
+                return fetch("/paypal/create-order", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ total: total }),
+                })
+                  .then((res) => res.json())
+                  .then((data) => data.id);
+              },
+              onApprove: function (data) {
+                return fetch("/paypal/capture-order", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ orderID: data.orderID }),
+                }).then(() => {
+                  sessionStorage.removeItem("cart");
+                  window.location.href = "/success";
+                });
+              },
+            })
+            .render("#paypal-button-container");
+        } else {
+          console.error("PayPal SDK não carregado!");
+        }
+      }
+
+      // Iniciar quando o SDK estiver pronto
+      window.addEventListener("DOMContentLoaded", () => {
+        if (window.paypal) {
+          loadPayPalButton();
+        } else {
+          document.querySelector("#paypal-button-container").innerHTML =
+            "<p>Carregando opções de pagamento...</p>";
+          const interval = setInterval(() => {
+            if (window.paypal) {
+              clearInterval(interval);
+              loadPayPalButton();
+            }
+          }, 500);
+        }
+      });
+    </script>
+  </body>
+</html>

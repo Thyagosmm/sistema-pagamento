@@ -1,0 +1,18 @@
+# Dependências
+node_modules/
+
+# Banco de dados
+database.sqlite
+
+# Variáveis de ambiente
+.env
+
+# Logs
+*.log
+
+# Editor/IDE
+.vscode/
+.idea/
+
+# Sistema operacional
+.DS_Store
